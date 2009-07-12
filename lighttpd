@@ -24,11 +24,11 @@ url = 'http://127.0.0.1/server-status?auto'
 def print_config(name):
     counters = ['accesses', 'kbytes']
     
-    typedict = {'accesses': 'accesses',
-                'kbytes': 'kilobytes transferred',
+    typedict = {'accesses': 'accesses per second',
+                'kbytes': 'kilobytes per second',
                 'uptime': 'seconds',
-                'busyservers': 'servers',
-                'idleservers': 'servers'}
+                'busyservers': 'number of servers',
+                'idleservers': 'number of servers'}
 
     if name in counters:
         addl = 'data.type COUNTER\n'
