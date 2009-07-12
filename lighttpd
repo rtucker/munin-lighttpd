@@ -30,13 +30,15 @@ def print_config(name):
     counters = ['accesses', 'kbytes']
     
     typedict = {'accesses': 'accesses per second',
-                'kbytes': 'kilobytes per second',
+                'kbytes': 'bits per second',
                 'uptime': 'seconds',
                 'busyservers': 'number of servers',
                 'idleservers': 'number of servers'}
 
     if name in counters:
-        addl = 'data.type COUNTER\n'
+        addl = 'data.type DERIVE\ndata.min 0\n'
+    elif name is 'kbytes':
+        addl = 'data.cdef data,8000,*\n'
     else:
         addl = ''
 
