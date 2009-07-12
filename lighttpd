@@ -18,7 +18,12 @@ import os
 import sys
 import urllib2
 
-myname = os.path.split(sys.argv[0])[-1].split('_')[1]
+try:
+    myname = os.path.split(sys.argv[0])[-1].split('_')[1]
+except IndexError:
+    # something's broke, we'll assume accesses
+    myname = 'accesses'
+    
 url = 'http://127.0.0.1/server-status?auto'
 
 def print_config(name):
