@@ -40,7 +40,7 @@ def print_config(name):
     else:
         addl = ''
 
-    if name is 'kbytes':
+    if name == 'kbytes':
         addl += 'data.cdef data,8000,*\n'
 
     return 'graph_title lighttpd: %s\ngraph_vlabel %s\ngraph_category lighttpd\ngraph_info %s (%s)\ndata.label %s\ndata.info %s\n%s' % (name, typedict[name], name, typedict[name], name, name, addl)
