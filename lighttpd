@@ -36,7 +36,7 @@ def print_config(name):
                 'idleservers': 'number of servers'}
 
     if name in counters:
-        addl = 'data.type COUNTER\n'
+        addl = 'data.type DERIVE\ndata.min 0\n'
     else:
         addl = ''
 
