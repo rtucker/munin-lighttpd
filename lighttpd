@@ -11,15 +11,18 @@ ln -s path_to_this_script /etc/munin/plugins/lighttpd_kbytes
 ln -s path_to_this_script /etc/munin/plugins/lighttpd_uptime
 
 Also ensure that lighttpd has mod_status enabled and that your
-status.status-url is set appropriately.  Adjust the url below if
-needed.
+status.status-url is set appropriately.  You can adjust the URL
+to check by adding something like this to your munin-node config:
+
+[lighttpd_*]
+env.statusurl http://ip/other_status
 """
 
 import os
 import sys
 import urllib2
 
-STATUS_URL = 'http://127.0.0.1/server-status?auto'
+STATUS_URL = os.environ.get('statusurl', 'http://127.0.0.1/server-status?auto')
 
 def print_config(name):
     """Generates and returns a munin config for a given chart."""
