@@ -1,4 +1,8 @@
 #!/usr/bin/python
+#%# family=auto
+#%# capabilities=suggest autoconf
+
+
 """
 Munin plugin to monitor lighttpd statistics
 Ryan Tucker <rtucker@gmail.com>, 2009/07/12
@@ -23,35 +27,38 @@ import sys
 import urllib2
 
 STATUS_URL = os.environ.get('statusurl', 'http://127.0.0.1/server-status?auto')
+AUTH_TYPE = os.environ.get('auth_type', '')
+AUTH_REALM = os.environ.get('auth_realm', '')
+AUTH_USER = os.environ.get('auth_user', '')
+AUTH_PASSWORD = os.environ.get('auth_password', '')
 
 def print_config(name):
-    """Generates and returns a munin config for a given chart."""
+    """Generates and prints a munin config for a given chart."""
     counters = ['accesses', 'kbytes']
     
-    typedict = {'accesses': 'accesses per second',
-                'kbytes': 'bits per second',
-                'uptime': 'seconds',
-                'busyservers': 'number of servers',
-                'idleservers': 'number of servers'}
+    #                         title       vert. label         description
+    typedict = {'accesses': ['Requests', 'requests / s', 'Requests per second', 'Requests'],
+                'kbytes': ['Traffic', 'bytes / s', 'Traffic in bytes per second', 'Bytes transfered'],
+                'uptime': ['Uptime', 'seconds', 'Uptime in seconds', 'Uptime'],
+                'busyservers': ['Active connections', 'connections', 'Number of active connections', 'Active connections'],
+                'idleservers': ['Idle connections', 'connections', 'Number of idle connections', 'Idle connections']}
+
+    print "graph_title %s" % (typedict[name][0])
+    print "graph_vlabel %s" % (typedict[name][1])
+    print "graph_category lighttpd"
+    print "graph_info %s" % (typedict[name][2])
+    print "data.label %s" % (typedict[name][3])
 
     if name in counters:
-        addl = 'data.type DERIVE\ndata.min 0\n'
-    else:
-        addl = ''
+        print "data.type DERIVE\ndata.min 0"
 
     if name == 'kbytes':
-        addl += 'data.cdef data,8000,*\n'
+        print "data.cdef data,8000,*"
 
-    return """graph_title lighttpd: %s
-graph_vlabel %s
-graph_category lighttpd
-graph_info %s (%s)
-data.label %s
-data.info %s
-%s""" % (name, typedict[name], name, typedict[name], name, name, addl)
 
 def print_status(name, url):
-    """Gets lighttpd's status and returns the requested value."""
+    """Gets lighttpd's status and prints the requested value."""
+
     statuslist = urllib2.urlopen(url).readlines()
     mappings = {'Total Accesses': 'accesses',
                 'Total kBytes': 'kbytes',
@@ -63,25 +70,42 @@ def print_status(name, url):
         key, value = i.split(':')
         if key in mappings.keys():
             if mappings[key] == name:
-                return 'data.value %s' % value
-
-def main(myname, url):
-    """Routes the request to the right place."""
-    if myname in ['accesses', 'kbytes', 'uptime', 'busyservers', 'idleservers']:
-        if len(sys.argv) > 1 and sys.argv[1] == 'config':
-            sys.stdout.write(print_config(myname))
-        else:
-            sys.stdout.write(print_status(myname, url))
-    else:
-        print 'unknown parameter %s' % myname
-        sys.exit(1)
+                print 'data.value %s' % value.strip()
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        if sys.argv[1] == 'suggest':
+            print "accesses\nkbytes\nuptime\nbusyservers\nidleservers"
+            sys.exit(0)
+        elif  sys.argv[1] == 'autoconf':
+            print 'yes'
+            sys.exit(0)
+
     try:
-        __myname__ = os.path.split(sys.argv[0])[-1].split('_')[1]
+        param = os.path.split(sys.argv[0])[-1].split('_')[1]
     except IndexError:
-        # something's broke, we'll assume accesses
-        __myname__ = 'accesses'
+        param = 'accesses'
 
-    main(__myname__, STATUS_URL)
+    if param not in ['accesses', 'kbytes', 'uptime', 'busyservers', 'idleservers']:
+        print 'unknown parameter %s' % (param)
+        sys.exit(1)
 
+    if len(sys.argv) > 1 and sys.argv[1] == 'config':
+        print_config(param)
+        sys.exit(0)
+
+    if (AUTH_TYPE == 'basic' or AUTH_TYPE == 'digest'):
+        if (AUTH_TYPE == 'basic'):
+            auth_handler = urllib2.HTTPBasicAuthHandler()
+        else:
+            auth_handler = urllib2.HTTPDigestAuthHandler()
+
+        auth_handler.add_password(realm=AUTH_REALM,
+                                  uri=STATUS_URL,
+                                  user=AUTH_USER,
+                                  passwd=AUTH_PASSWORD)
+
+        opener = urllib2.build_opener(auth_handler)
+        urllib2.install_opener(opener)
+
+    print_status(param, STATUS_URL)
