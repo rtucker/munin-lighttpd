@@ -1,0 +1,26 @@
+Munin plugin to monitor lighttpd statistics
+Ryan Tucker <rtucker@gmail.com>, 2009/07/12
+
+To use:
+ln -s path_to_this_script /etc/munin/plugins/lighttpd_accesses
+ln -s path_to_this_script /etc/munin/plugins/lighttpd_busyservers
+ln -s path_to_this_script /etc/munin/plugins/lighttpd_idleservers
+ln -s path_to_this_script /etc/munin/plugins/lighttpd_kbytes
+ln -s path_to_this_script /etc/munin/plugins/lighttpd_uptime
+
+Also ensure that lighttpd has mod_status enabled and that your
+status.status-url is set appropriately.
+
+You can optionally configure this plugin in your munin-node configuration:
+
+[lighttpd_*]
+# statusurl: set a different URL for lighttpd status
+env.statusurl http://ip/other_status
+# auth_type: use basic or digest authentication via urllib2
+env.auth_type basic|digest
+# auth_realm, auth_user, and auth_password are passed to urllib2's
+# auth handler verbatim
+env.auth_realm
+env.auth_user
+env.auth_password
+
