@@ -78,7 +78,10 @@ if __name__ == '__main__':
             print "accesses\nkbytes\nuptime\nbusyservers\nidleservers"
             sys.exit(0)
         elif  sys.argv[1] == 'autoconf':
-            print 'yes'
+            if os.path.exists('/etc/lighttpd'):
+                print 'yes'
+            else:
+                print 'no'
             sys.exit(0)
 
     try:
