@@ -36,12 +36,22 @@ def print_config(name):
     """Generates and prints a munin config for a given chart."""
     counters = ['accesses', 'kbytes']
     
-    #                         title       vert. label         description
-    typedict = {'accesses': ['Requests', 'requests / s', 'Requests per second', 'Requests'],
-                'kbytes': ['Traffic', 'bytes / s', 'Traffic in bytes per second', 'Bytes transfered'],
-                'uptime': ['Uptime', 'seconds', 'Uptime in seconds', 'Uptime'],
-                'busyservers': ['Active connections', 'connections', 'Number of active connections', 'Active connections'],
-                'idleservers': ['Idle connections', 'connections', 'Number of idle connections', 'Idle connections']}
+    # title, vert. label, description
+    typedict = {
+        'accesses':
+            ['Requests', 'requests / s', 'Requests per second', 'Requests'],
+        'kbytes':
+            ['Traffic', 'bytes / s', 'Traffic in bytes per second',
+             'Bytes transfered'],
+        'uptime':
+            ['Uptime', 'seconds', 'Uptime in seconds', 'Uptime'],
+        'busyservers':
+            ['Active connections', 'connections',
+             'Number of active connections', 'Active connections'],
+        'idleservers':
+            ['Idle connections', 'connections', 'Number of idle connections',
+             'Idle connections'],
+        }
 
     print "graph_title %s" % (typedict[name][0])
     print "graph_vlabel %s" % (typedict[name][1])
@@ -72,7 +82,8 @@ def print_status(name, url):
             if mappings[key] == name:
                 print 'data.value %s' % value.strip()
 
-if __name__ == '__main__':
+def main():
+    """Act like a Munin plugin."""
     if len(sys.argv) > 1:
         if sys.argv[1] == 'suggest':
             print "accesses\nkbytes\nuptime\nbusyservers\nidleservers"
@@ -89,7 +100,8 @@ if __name__ == '__main__':
     except IndexError:
         param = 'accesses'
 
-    if param not in ['accesses', 'kbytes', 'uptime', 'busyservers', 'idleservers']:
+    if param not in ['accesses', 'kbytes', 'uptime', 'busyservers',
+                     'idleservers']:
         print 'unknown parameter %s' % (param)
         sys.exit(1)
 
@@ -112,3 +124,6 @@ if __name__ == '__main__':
         urllib2.install_opener(opener)
 
     print_status(param, STATUS_URL)
+
+if __name__ == '__main__':
+    main()
