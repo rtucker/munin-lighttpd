@@ -19,7 +19,7 @@ status.status-url is set appropriately.  You can adjust the URL
 to check by adding something like this to your munin-node config:
 
 [lighttpd_*]
-env.statusurl http://ip/other_status
+env.statusurl http://ip/other_status?auto
 """
 
 import os
